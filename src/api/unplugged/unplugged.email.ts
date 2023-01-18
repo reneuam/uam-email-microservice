@@ -6,13 +6,40 @@ export class UnpluggedEmail {
   constructor(private readonly mailerService: MailerService) {}
 
   async balanceUpdatedBySystem(emailData: any) {
+    const users = emailData.users;
+
+    const emailsSent = await Promise.all(
+      users.map(async(user) => {         
+        return await this.mailerService.sendMail({
+          to: `${user.email}`,
+          from: `"Unplugged" <${process.env.MAIL_USER}>`,
+          subject: 'Your Vacations balance has been updated',
+          template: './balanceUpdatedBySystem',
+          context: {
+            vacationDays: emailData.vacationDays
+          }
+        })
+        .then((success) => {
+          console.log(success)
+        })
+        .catch((err) => {
+          console.log('err', err)
+        });
+      })
+    )
+
+    return emailsSent;
+  }
+
+  async balanceUpdatedByHr(emailData: any) {
     return await this.mailerService.sendMail({
       to: `${emailData.user.email}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
       subject: 'Request created successfully by you',
       template: './requestCreatedUserToUser',
       context: {
-        request: emailData.request
+        user: emailData.user,
+        vacationDays: emailData.vacationDays
       }
     })
     .then((success) => {
@@ -31,10 +58,11 @@ export class UnpluggedEmail {
       to: `${emailData.user.email}`,
       cc: `${emailData.coachEmail}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you coach',
+      subject: 'Unplugged - Request created by Human Resources',
       template: './requestCreatedByHrToUser',
       context: {
         request: emailData.request,
+        requestType: emailData.requestType,
         user: emailData.user
       }
     })
@@ -50,10 +78,11 @@ export class UnpluggedEmail {
     return await this.mailerService.sendMail({
       to: `${emailData.user.email}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you coach',
+      subject: 'Unplugged - Request created by Human Resources',
       template: './requestCreatedByHrToUser',
       context: {
         request: emailData.request,
+        requestType: emailData.requestType,
         user: emailData.user
       }
     })
@@ -65,14 +94,15 @@ export class UnpluggedEmail {
     });
   }
   
-  async requestCreatedByUserToUser(emailData: any) {
+  async requestCreatedByUserToUser(emailData: any) {    
     return await this.mailerService.sendMail({
       to: `${emailData.user.email}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you',
+      subject: 'Unplugged - Request created by you',
       template: './requestCreatedByUserToUser',
       context: {
-        request: emailData.request
+        request: emailData.request,
+        requestType: emailData.requestType
       }
     })
     .then((success) => {
@@ -87,10 +117,11 @@ export class UnpluggedEmail {
     return await this.mailerService.sendMail({
       to: `${emailData.coachEmail}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you coach',
+      subject: `Unplugged - Request created by ${emailData.user.firstname} ${emailData.user.lastname}`,
       template: './requestCreatedByUserToTl',
       context: {
         request: emailData.request,
+        requestType: emailData.requestType,
         user: emailData.user
       }
     })
@@ -109,10 +140,11 @@ export class UnpluggedEmail {
     return await this.mailerService.sendMail({
       to: `${emails}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you coach',
+      subject: `Unplugged - Request created by ${emailData.user.firstname} ${emailData.user.lastname}`,
       template: './requestCreatedByAdminTlToHr',
       context: {
         request: emailData.request,
+        requestType: emailData.requestType,
         user: emailData.user
       }
     })
@@ -125,17 +157,18 @@ export class UnpluggedEmail {
   }
 
   async requestCreatedByUserJrTlToHr(emailData: any) {
-    const hrEmails = emailData.hrEmails; 
+    const hrEmails = emailData.hrEmails;
     const emails = String(hrEmails);
 
     return await this.mailerService.sendMail({
       to: `${emails}`,
       cc: `${emailData.coachEmail}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you coach',
+      subject: `Unplugged - Request created by ${emailData.user.firstname} ${emailData.user.lastname}`,
       template: './requestCreatedByAdminTlToHr',
       context: {
         request: emailData.request,
+        requestType: emailData.requestType,
         user: emailData.user
       }
     })
@@ -151,10 +184,12 @@ export class UnpluggedEmail {
     return await this.mailerService.sendMail({
       to: `${emailData.user.email}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you',
+      subject: `Unplugged - Request ${emailData.requestStatus} by your Team Leader`,
       template: './requestProcesedByTlToUser',
       context: {
-        request: emailData.request
+        request: emailData.request,
+        requestType: emailData.requestType,
+        requestStatus: emailData.requestStatus
       }
     })
     .then((success) => {
@@ -172,10 +207,13 @@ export class UnpluggedEmail {
     return await this.mailerService.sendMail({
       to: `${emails}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you',
+      subject: `Unplugged - Request from ${emailData.user.firstname} ${emailData.user.lastname} ${emailData.requestStatus} by Team Leader`,
       template: './requestProcesedByTlToHr',
       context: {
-        request: emailData.request
+        request: emailData.request,
+        requestType: emailData.requestType,
+        requestStatus: emailData.requestStatus,
+        user: emailData.user
       }
     })
     .then((success) => {
@@ -187,16 +225,36 @@ export class UnpluggedEmail {
   }
 
   async requestProcesedByHrToUser(emailData: any) {
-    const hrEmails = emailData.hrEmails; 
-    const emails = String(hrEmails);
-
     return await this.mailerService.sendMail({
-      to: `${emails}`,
+      to: `${emailData.user.email}`,
+      cc: `${emailData.coachEmail}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you',
+      subject: `Unplugged - Request ${emailData.requestStatus} by Human Resources`,
       template: './requestProcesedByHrToUser',
       context: {
-        request: emailData.request
+        request: emailData.request,
+        requestType: emailData.requestType,
+        requestStatus: emailData.requestStatus
+      }
+    })
+    .then((success) => {
+      console.log(success)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  async requestProcesedByHrToUserTlAdmin(emailData: any) {
+    return await this.mailerService.sendMail({
+      to: `${emailData.user.email}`,
+      from: `"Unplugged" <${process.env.MAIL_USER}>`,
+      subject: `Unplugged - Request ${emailData.requestStatus} by Human Resources`,
+      template: './requestProcesedByHrToUser',
+      context: {
+        request: emailData.request,
+        requestType: emailData.requestType,
+        requestStatus: emailData.requestStatus
       }
     })
     .then((success) => {
@@ -208,16 +266,34 @@ export class UnpluggedEmail {
   }
 
   async requestCanceledByHrToUser(emailData: any) {
-    const hrEmails = emailData.hrEmails; 
-    const emails = String(hrEmails);
-
     return await this.mailerService.sendMail({
-      to: `${emails}`,
+      to: `${emailData.user.email}`,
+      cc: `${emailData.coachEmail}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you',
+      subject: 'Unplugged - Request canceled by Human Resources',
       template: './requestCanceledByHrToUser',
       context: {
-        request: emailData.request
+        request: emailData.request,
+        requestType: emailData.requestType
+      }
+    })
+    .then((success) => {
+      console.log(success)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  async requestCanceledByHrToUserTlAdmin(emailData: any) {
+    return await this.mailerService.sendMail({
+      to: `${emailData.user.email}`,
+      from: `"Unplugged" <${process.env.MAIL_USER}>`,
+      subject: 'Unplugged - Request canceled by Human Resources',
+      template: './requestCanceledByHrToUser',
+      context: {
+        request: emailData.request,
+        requestType: emailData.requestType
       }
     })
     .then((success) => {

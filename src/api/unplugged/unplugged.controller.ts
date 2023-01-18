@@ -17,17 +17,17 @@ export class UnpluggedController {
   }
 
   @MessagePattern('updateRequestEmail')
-  updateRequestEmail() {
-    return this.unpluggedService.updateRequestEmail();
+  updateRequestEmail(@Payload() emailData: any) {
+    return this.unpluggedService.updateRequestEmail(emailData);
   }
 
-  @MessagePattern('approveRequestEmail')
-  approveRequestEmail() {
-    return this.unpluggedService.approveRequestEmail();
+  @MessagePattern('updateBalanceSystemEmail')
+  updateBalanceSystemEmail(@Payload() emailData: any) {    
+    return this.unpluggedService.updateBalanceSystem(emailData);
   }
 
-  @MessagePattern('denyRequestEmail')
-  denyRequestEmail() {
-    return this.unpluggedService.denyRequestEmail();
+  @MessagePattern('updateBalanceHrEmail')
+  updateBalanceHrEmail(@Payload() emailData: any) {
+    return this.unpluggedService.updateRequestEmail(emailData);
   }
 }
