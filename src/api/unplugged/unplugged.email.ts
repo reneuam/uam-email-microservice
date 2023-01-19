@@ -13,7 +13,7 @@ export class UnpluggedEmail {
         return await this.mailerService.sendMail({
           to: `${user.email}`,
           from: `"Unplugged" <${process.env.MAIL_USER}>`,
-          subject: 'Your Vacations balance has been updated',
+          subject: 'Your vacations balance has been updated',
           template: './balanceUpdatedBySystem',
           context: {
             vacationDays: emailData.vacationDays
@@ -35,8 +35,8 @@ export class UnpluggedEmail {
     return await this.mailerService.sendMail({
       to: `${emailData.user.email}`,
       from: `"Unplugged" <${process.env.MAIL_USER}>`,
-      subject: 'Request created successfully by you',
-      template: './requestCreatedUserToUser',
+      subject: 'Your balance have been updated',
+      template: './balanceUpdatedByHr',
       context: {
         user: emailData.user,
         vacationDays: emailData.vacationDays
