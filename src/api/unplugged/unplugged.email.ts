@@ -93,6 +93,49 @@ export class UnpluggedEmail {
       console.log(err)
     });
   }
+
+  async requestCreatedByCoachToUser(emailData: any) {
+    return await this.mailerService.sendMail({
+      to: `${emailData.user.email}`,
+      from: `"Unplugged" <${process.env.MAIL_USER}>`,
+      subject: 'Unplugged - Request created by your Team Leader',
+      template: './requestCreatedByCoachToUser',
+      context: {
+        request: emailData.request,
+        requestType: emailData.requestType,
+        user: emailData.user
+      }
+    })
+    .then((success) => {
+      console.log(success)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
+
+  async requestCreatedByCoachToHr(emailData: any) {
+    const hrEmails = emailData.hrEmails; 
+    const emails = String(hrEmails);
+
+    return await this.mailerService.sendMail({
+      to: `${emails}`,
+      from: `"Unplugged" <${process.env.MAIL_USER}>`,
+      subject: `Unplugged - Request from ${emailData.user.firstname} ${emailData.user.lastname} created by Team Leader`,
+      template: './requestCreatedByCoachToHr',
+      context: {
+        request: emailData.request,
+        requestType: emailData.requestType,
+        user: emailData.user
+      }
+    })
+    .then((success) => {
+      console.log(success)
+    })
+    .catch((err) => {
+      console.log(err)
+    });
+  }
   
   async requestCreatedByUserToUser(emailData: any) {    
     return await this.mailerService.sendMail({

@@ -31,6 +31,17 @@ export class UnpluggedService {
     return true;
   }
 
+  async requestCreatedByCoach(emailData: any) {
+    console.log('Email sent 2');
+    emailData.request.startDate = Moment(emailData.request.startDate).format('MM-DD-YYYY');
+    emailData.request.endDate = Moment(emailData.request.endDate).format('MM-DD-YYYY');
+
+    await this.unpluggedEmail.requestCreatedByCoachToUser(emailData);
+    await this.unpluggedEmail.requestCreatedByCoachToHr(emailData);
+
+    return true;
+  }
+
   async requestCreatedByHr(emailData: any) {
     emailData.request.startDate = Moment(emailData.request.startDate).format('MM-DD-YYYY');
     emailData.request.endDate = Moment(emailData.request.endDate).format('MM-DD-YYYY');

@@ -11,6 +11,13 @@ export class UnpluggedController {
     return this.unpluggedService.requestCreatedByUser(emailData);
   }
 
+  @MessagePattern('createRequestCoachEmail')
+  createRequestCoachEmail(@Payload() emailData: any) {
+    console.log('Email sent');
+    
+    return this.unpluggedService.requestCreatedByCoach(emailData);
+  }
+
   @MessagePattern('createRequestHrEmail')
   createRequestHrEmail(@Payload() emailData: any) {
     return this.unpluggedService.requestCreatedByHr(emailData);
